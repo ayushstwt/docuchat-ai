@@ -91,7 +91,7 @@ def respond(
     headers: Optional[dict] = None,
 ) -> JSONResponse:
     # Always include data, omit null optional fields
-    data_dict = response.model_dump(by_alias=True, exclude_none=True)
+    data_dict = response.model_dump(mode="json", by_alias=True, exclude_none=True)
     if "data" not in data_dict:
         data_dict["data"] = None
     return JSONResponse(

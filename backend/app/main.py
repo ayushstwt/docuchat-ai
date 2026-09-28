@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.core.logging import setup_logging
 from app.exceptions.handlers import register_exception_handlers
-from app.routers import health
+from app.routers import auth, health
 
 settings = get_settings()
 
@@ -33,3 +33,4 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")

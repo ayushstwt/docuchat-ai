@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import BigInteger, Boolean, DateTime, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base
 
@@ -8,7 +8,7 @@ class BaseModel(Base):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
-        BigInteger,
+        Integer().with_variant(BigInteger, "postgresql"),
         primary_key=True,
         autoincrement=True,
         index=True,

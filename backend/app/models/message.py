@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from sqlalchemy import BigInteger, Enum as SQLEnum, ForeignKey, Index, Integer, Text
+from sqlalchemy import BigInteger, Enum as SQLEnum, ForeignKey, Index, Integer, JSON, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from app.constants.enums import MessageRole
@@ -24,7 +24,7 @@ class Message(BaseModel):
         nullable=False,
     )
     sources: Mapped[Optional[Any]] = mapped_column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=True,
     )
     prompt_tokens: Mapped[Optional[int]] = mapped_column(

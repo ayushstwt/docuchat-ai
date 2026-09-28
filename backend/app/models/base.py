@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import BigInteger, Boolean, DateTime, func
+from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import Base
 
 

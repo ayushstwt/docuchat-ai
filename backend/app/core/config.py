@@ -1,6 +1,6 @@
 from functools import lru_cache
 from typing import List, Union
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,6 +44,24 @@ class Settings(BaseSettings):
                     pass
             return [item.strip() for item in value.split(",") if item.strip()]
         return value
+
+    @model_validator(mode="after")
+    def validate_required_settings(self) -> "Settings":
+        # Check required fields
+        if not self.DATABASE_URL:
+            raise ValueError("DATABASE_URL environment variable is required.")
+        if not self.JWT_SECRET:
+            raise ValueError("JWT_SECRET environment variable is required.")
+        if not self.AZURE_OPENAI_ENDPOINT or not self.AZURE_OPENAI_API_KEY:
+            raise ValueError("AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY are required.")
+
+        # In non-development environment, enforce min length of 32 for JWT_SECRET
+        if self.APP_ENV != "development" and len(self.JWT_SECRET) < 32:
+            raise ValueError(
+                f"JWT_SECRET must be at least 32 characters in non-development environment (APP_ENV={self.APP_ENV})."
+            )
+
+        return self
 
 
 @lru_cache

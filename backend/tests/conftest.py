@@ -35,6 +35,8 @@ async def override_get_db():
 
 @pytest_asyncio.fixture(autouse=True)
 async def prepare_database(monkeypatch):
+    from app.core.deps import limiter
+    limiter.reset()
     import app.services.document_service
     monkeypatch.setattr(app.services.document_service, "AsyncSessionLocal", TestingSessionLocal)
     fastapi_app.dependency_overrides[get_db] = override_get_db

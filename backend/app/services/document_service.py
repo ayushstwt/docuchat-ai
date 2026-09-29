@@ -158,14 +158,22 @@ class DocumentService:
 
     async def get_document_file_path(self, doc_id: int, user_id: int) -> Tuple[str, str]:
         """
-        Returns (file_path, original_filename) for the owner.
+        Returns (file_path, original_filename) for the owner, ensuring no path traversal.
         """
         doc = await self.doc_repo.get_owned(doc_id, user_id)
         if not doc:
             raise NotFoundException(ErrorCode.DOCUMENT_NOT_FOUND, doc_id)
-        if not os.path.exists(doc.file_path):
+
+        # Enforce path containment within UPLOAD_DIR
+        real_upload_dir = os.path.realpath(settings.UPLOAD_DIR)
+        real_file_path = os.path.realpath(doc.file_path)
+        if not real_file_path.startswith(real_upload_dir):
+            raise AppException(ErrorCode.FORBIDDEN)
+
+        if not os.path.exists(real_file_path):
             raise NotFoundException(ErrorCode.DOCUMENT_NOT_FOUND, doc_id)
-        return doc.file_path, doc.original_filename
+
+        return real_file_path, doc.original_filename
 
     async def delete_document(self, doc_id: int, user_id: int) -> None:
         doc = await self.doc_repo.get_owned(doc_id, user_id)

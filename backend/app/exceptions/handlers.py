@@ -2,6 +2,7 @@ import logging
 from typing import Any
 from fastapi import FastAPI, Request, status as http_status
 from fastapi.exceptions import RequestValidationError
+from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.constants.error_codes import ErrorCode
@@ -12,6 +13,16 @@ logger = logging.getLogger(__name__)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> Any:
+        logger.warning(f"Rate limit exceeded on {request.url.path}: {exc.detail}")
+        envelope = ApiResponse.error(
+            error_code=ErrorCode.RATE_LIMITED.code,
+            message=ErrorCode.RATE_LIMITED.format("few"),
+            path=request.url.path,
+        )
+        return respond(envelope, status_code=http_status.HTTP_429_TOO_MANY_REQUESTS)
+
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException) -> Any:
         status_code = exc.error.http_status

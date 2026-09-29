@@ -1,11 +1,11 @@
 from typing import List, Optional
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, Response, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Query, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.enums import DocumentStatus
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, limiter
 from app.models.user import User
 from app.schemas.common import ApiResponse, PageMetadata, PageParams, respond
 from app.schemas.document import DocumentResponse
@@ -19,7 +19,9 @@ router = APIRouter(prefix="/documents", tags=["Documents"])
     status_code=status.HTTP_201_CREATED,
     summary="Upload PDF document",
 )
+@limiter.limit("10/hour")
 async def upload_document(
+    request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),

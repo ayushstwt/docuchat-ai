@@ -81,11 +81,12 @@ class ConversationRepository:
         total_items = total_result.scalar() or 0
 
         # Items ordered by created_on DESC
+        offset_val = (page - 1) * size if page > 0 else 0
         stmt = (
             select(Conversation)
             .where(*base_filters)
             .order_by(Conversation.created_on.desc())
-            .offset(page * size)
+            .offset(offset_val)
             .limit(size)
         )
         items_result = await self.db.execute(stmt)

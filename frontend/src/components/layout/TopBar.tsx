@@ -1,15 +1,25 @@
 import React from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, PanelLeft } from "lucide-react";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
+import { useSidebarStore } from "../../store/sidebarStore";
 
 export const TopBar: React.FC = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
+  const { toggleSidebar, isCollapsed } = useSidebarStore();
 
   return (
-    <header className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 transition-colors">
+    <header className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors">
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <PanelLeft className="w-4 h-4" />
+        </button>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           RAG Pipeline Active

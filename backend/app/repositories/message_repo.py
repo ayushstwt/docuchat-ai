@@ -48,11 +48,12 @@ class MessageRepository:
         total_items = total_result.scalar() or 0
 
         # Ordered by created_on ASC
+        offset_val = (page - 1) * size if page > 0 else 0
         stmt = (
             select(Message)
             .where(*base_filters)
             .order_by(Message.created_on.asc())
-            .offset(page * size)
+            .offset(offset_val)
             .limit(size)
         )
         items_result = await self.db.execute(stmt)

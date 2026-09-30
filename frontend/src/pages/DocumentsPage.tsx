@@ -23,6 +23,7 @@ import { Button } from "../components/ui/Button";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { useToast } from "../components/ui/Toast";
 import { NewChatModal } from "../components/chat/NewChatModal";
+import { ConfirmDeleteModal } from "../components/common/ConfirmDeleteModal";
 import { SkeletonTable } from "../components/ui/Skeleton";
 import { ApiError } from "../api/client";
 
@@ -36,6 +37,7 @@ export const DocumentsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isNewChatOpen, setIsNewChatOpen] = useState(false);
   const [chatTargetDocIds, setChatTargetDocIds] = useState<number[]>([]);
+  const [docToDelete, setDocToDelete] = useState<{ id: number; title: string } | null>(null);
 
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +114,7 @@ export const DocumentsPage: React.FC = () => {
     },
     onSuccess: () => {
       toast.info("Document deleted.");
+      setDocToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     },
     onError: (err: unknown) => {
@@ -425,11 +428,7 @@ export const DocumentsPage: React.FC = () => {
                           </Button>
                         )}
                         <button
-                          onClick={() => {
-                            if (window.confirm(`Delete "${doc.title}"?`)) {
-                              deleteMutation.mutate(doc.id);
-                            }
-                          }}
+                          onClick={() => setDocToDelete({ id: doc.id, title: doc.title || doc.originalFilename })}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition-colors"
                           title="Delete Document"
                         >
@@ -473,6 +472,21 @@ export const DocumentsPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!docToDelete}
+        onClose={() => setDocToDelete(null)}
+        onConfirm={() => {
+          if (docToDelete) {
+            deleteMutation.mutate(docToDelete.id);
+          }
+        }}
+        title="Delete Document"
+        itemName={docToDelete?.title}
+        itemType="document"
+        isDeleting={deleteMutation.isPending}
+      />
 
       {/* Start New Chat Modal */}
       <NewChatModal

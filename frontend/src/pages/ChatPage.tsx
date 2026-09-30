@@ -19,6 +19,7 @@ import { Source } from "../api/types";
 import { MessageBubble } from "../components/chat/MessageBubble";
 import { SourceDrawer } from "../components/chat/SourceDrawer";
 import { NewChatModal } from "../components/chat/NewChatModal";
+import { ConfirmDeleteModal } from "../components/common/ConfirmDeleteModal";
 import { SkeletonChatBubble, Skeleton } from "../components/ui/Skeleton";
 import { Button } from "../components/ui/Button";
 import { useToast } from "../components/ui/Toast";
@@ -31,6 +32,7 @@ export const ChatPage: React.FC = () => {
   const toast = useToast();
 
   const selectedConvId = conversationId ? parseInt(conversationId, 10) : null;
+  const [convToDelete, setConvToDelete] = useState<{ id: number; title: string } | null>(null);
 
   // Conversations list query
   const { data: convData, isLoading: isLoadingConvs } = useQuery({
@@ -112,12 +114,14 @@ export const ChatPage: React.FC = () => {
     },
     onSuccess: (_, deletedId) => {
       toast.info("Conversation deleted.");
+      setConvToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       if (selectedConvId === deletedId) {
         navigate("/chat", { replace: true });
       }
     },
     onError: (err: unknown) => {
+      setConvToDelete(null);
       const msg =
         err instanceof ApiError ? err.message : "Failed to delete conversation.";
       toast.error(msg);
@@ -264,9 +268,7 @@ export const ChatPage: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (window.confirm(`Delete conversation "${conv.title}"?`)) {
-                        deleteConvMutation.mutate(conv.id);
-                      }
+                      setConvToDelete({ id: conv.id, title: conv.title });
                     }}
                     className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-opacity"
                     title="Delete Chat"
@@ -475,6 +477,21 @@ export const ChatPage: React.FC = () => {
         isOpen={isNewChatOpen}
         onClose={() => setIsNewChatOpen(false)}
         documents={documents}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!convToDelete}
+        onClose={() => setConvToDelete(null)}
+        onConfirm={() => {
+          if (convToDelete) {
+            deleteConvMutation.mutate(convToDelete.id);
+          }
+        }}
+        title="Delete Conversation"
+        itemName={convToDelete?.title}
+        itemType="conversation"
+        isDeleting={deleteConvMutation.isPending}
       />
     </div>
   );

@@ -64,13 +64,14 @@ def create_minimal_pdf_bytes(text: str = "Test document content") -> bytes:
 async def test_create_conversation_non_ready_document_yields_409(client, user_session):
     token = user_session["token"]
 
-    # Upload document (status will be UPLOADED)
+    # Upload document with processing mocked so it stays in UPLOADED/PROCESSING state
     pdf_bytes = create_minimal_pdf_bytes("Doc for test")
-    upload_res = await client.post(
-        "/api/v1/documents",
-        headers={"Authorization": f"Bearer {token}"},
-        files={"file": ("unprocessed.pdf", pdf_bytes, "application/pdf")},
-    )
+    with patch("app.routers.documents.process_document", new_callable=AsyncMock):
+        upload_res = await client.post(
+            "/api/v1/documents",
+            headers={"Authorization": f"Bearer {token}"},
+            files={"file": ("unprocessed.pdf", pdf_bytes, "application/pdf")},
+        )
     doc_id = upload_res.json()["data"]["id"]
 
     # Attempt to create conversation before document is READY

@@ -38,7 +38,6 @@ class RetrievalService:
         except Exception:
             pass
 
-        # Query using raw/constructive SQL to support pgvector cosine operator <=>
         query_str = """
             SELECT 
                 c.id AS chunk_id,
@@ -46,94 +45,53 @@ class RetrievalService:
                 c.page_number AS page_number,
                 c.content AS content,
                 c.token_count AS token_count,
+                c.embedding AS embedding,
                 c.document_id AS document_id,
-                d.title AS document_title,
-                (c.embedding <=> :query_embedding) AS distance
+                d.title AS document_title
             FROM document_chunks c
             INNER JOIN documents d ON d.id = c.document_id
             WHERE c.user_id = :user_id
               AND c.document_id = ANY(:document_ids)
               AND c.is_deleted = false
               AND d.is_deleted = false
-            ORDER BY distance ASC
-            LIMIT :top_k
         """
 
         try:
-            # We can format/bind query_embedding as string or array
-            embedding_str = "[" + ",".join(str(f) for f in query_embedding) + "]"
             result = await self.db.execute(
                 text(query_str),
                 {
                     "user_id": user_id,
                     "document_ids": document_ids,
-                    "query_embedding": embedding_str,
-                    "top_k": top_k,
                 },
             )
             rows = result.mappings().all()
 
-            matched_chunks: List[Dict[str, Any]] = []
-            for row in rows:
-                distance = float(row["distance"]) if row["distance"] is not None else 1.0
-                similarity = 1.0 - distance
-                if similarity >= min_similarity:
-                    matched_chunks.append({
-                        "chunk_id": row["chunk_id"],
-                        "chunk_index": row["chunk_index"],
-                        "document_id": row["document_id"],
-                        "document_title": row["document_title"],
-                        "page_number": row["page_number"],
-                        "content": row["content"],
-                        "token_count": row["token_count"],
-                        "similarity": round(similarity, 4),
-                    })
+            def calc_cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:
+                if not vec_a or not vec_b or len(vec_a) != len(vec_b):
+                    return 0.0
+                dot = sum(a * b for a, b in zip(vec_a, vec_b))
+                norm_a = sum(a * a for a in vec_a) ** 0.5
+                norm_b = sum(b * b for b in vec_b) ** 0.5
+                if norm_a == 0.0 or norm_b == 0.0:
+                    return 0.0
+                return dot / (norm_a * norm_b)
 
-            return matched_chunks
+            scored_chunks = []
+            for r in rows:
+                emb = r["embedding"]
+                sim = 0.0
+                if emb and isinstance(emb, list):
+                    sim = calc_cosine_similarity(emb, query_embedding)
+                elif emb and isinstance(emb, str):
+                    try:
+                        import json
+                        parsed = json.loads(emb)
+                        sim = calc_cosine_similarity(parsed, query_embedding)
+                    except Exception:
+                        sim = 0.5
 
-        except Exception as e:
-            # Fallback for non-pgvector environments (like in-memory SQLite during unit tests)
-            logger.warning(f"pgvector query failed ({e}), attempting fallback retrieval")
-            fallback_query = """
-                SELECT 
-                    c.id AS chunk_id,
-                    c.chunk_index AS chunk_index,
-                    c.page_number AS page_number,
-                    c.content AS content,
-                    c.token_count AS token_count,
-                    c.document_id AS document_id,
-                    d.title AS document_title
-                FROM document_chunks c
-                INNER JOIN documents d ON d.id = c.document_id
-                WHERE c.user_id = :user_id
-                  AND c.document_id IN :document_ids
-                  AND c.is_deleted = 0
-                  AND d.is_deleted = 0
-                LIMIT :top_k
-            """
-            try:
-                # In SQLite, ANY(:document_ids) is not supported, tuple binding is used
-                stmt = text(f"""
-                    SELECT 
-                        c.id AS chunk_id,
-                        c.chunk_index AS chunk_index,
-                        c.page_number AS page_number,
-                        c.content AS content,
-                        c.token_count AS token_count,
-                        c.document_id AS document_id,
-                        d.title AS document_title
-                    FROM document_chunks c
-                    INNER JOIN documents d ON d.id = c.document_id
-                    WHERE c.user_id = :user_id
-                      AND c.document_id IN ({','.join(str(int(i)) for i in document_ids)})
-                      AND c.is_deleted = 0
-                      AND d.is_deleted = 0
-                    LIMIT :top_k
-                """)
-                res = await self.db.execute(stmt, {"user_id": user_id, "top_k": top_k})
-                rows = res.mappings().all()
-                return [
-                    {
+                if sim >= min_similarity:
+                    scored_chunks.append({
                         "chunk_id": r["chunk_id"],
                         "chunk_index": r["chunk_index"],
                         "document_id": r["document_id"],
@@ -141,10 +99,14 @@ class RetrievalService:
                         "page_number": r["page_number"],
                         "content": r["content"],
                         "token_count": r["token_count"],
-                        "similarity": 1.0,
-                    }
-                    for r in rows
-                ]
-            except Exception as ex_fallback:
-                logger.error(f"Fallback search query failed: {ex_fallback}")
-                return []
+                        "similarity": round(float(sim), 4),
+                    })
+
+            scored_chunks.sort(key=lambda x: x["similarity"], reverse=True)
+            return scored_chunks[:top_k]
+
+        except Exception as e:
+            logger.error(f"Search query failed: {e}")
+            return []
+
+

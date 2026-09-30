@@ -39,11 +39,12 @@ class ActivityRepository:
         total_result = await self.db.execute(count_stmt)
         total_items = total_result.scalar() or 0
 
+        offset_val = (page - 1) * size if page > 0 else 0
         stmt = (
             select(ActivityLog)
             .where(*base_filters)
             .order_by(ActivityLog.created_on.desc())
-            .offset(page * size)
+            .offset(offset_val)
             .limit(size)
         )
         items_result = await self.db.execute(stmt)

@@ -16,6 +16,35 @@ DocuChat AI is a full-stack, enterprise-grade "Chat with your PDFs" application 
 
 ---
 
+## Product Screenshots
+
+### 1. Interactive Chat Experience (Light & Dark Themes)
+Real-time token streaming with verified page citations, grounded RAG citations, and interactive source inspection drawer.
+
+| Light Mode | Dark Mode |
+|:---:|:---:|
+| ![Chat Interface Light Mode](docs/screenshots/chat_light.png) | ![Chat Interface Dark Mode](docs/screenshots/chat_dark.png) |
+
+---
+
+### 2. Document Ingestion & Management
+Upload documents with drag-and-drop, token-bounded chunking progress, and deletion confirmation guards.
+
+| Documents Dashboard | Start New Chat Modal |
+|:---:|:---:|
+| ![Documents Dashboard](docs/screenshots/documents_dashboard.png) | ![Start New Chat Modal](docs/screenshots/start_chat_modal.png) |
+
+---
+
+### 3. Activity Audit Trail & Authentication
+Comprehensive user activity logs, secure Argon2id authentication, and mobile responsiveness.
+
+| Activity Logs Audit Trail | Authentication & Mobile |
+|:---:|:---:|
+| ![Activity Logs](docs/screenshots/activity_logs.png) | ![Login Screen](docs/screenshots/auth_login.png) |
+
+---
+
 ## Tech Stack
 
 ### Backend

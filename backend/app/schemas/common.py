@@ -90,10 +90,15 @@ def respond(
     status_code: int = http_status.HTTP_200_OK,
     headers: Optional[dict] = None,
 ) -> JSONResponse:
-    # Always include data, omit null optional fields
-    data_dict = response.model_dump(mode="json", by_alias=True, exclude_none=True)
-    if "data" not in data_dict:
-        data_dict["data"] = None
+    data_dict = response.model_dump(mode="json", by_alias=True, exclude_none=False)
+    if response.error_code is None:
+        data_dict.pop("errorCode", None)
+    if response.errors is None:
+        data_dict.pop("errors", None)
+    if response.metadata is None:
+        data_dict.pop("metadata", None)
+    if response.path is None:
+        data_dict.pop("path", None)
     return JSONResponse(
         content=data_dict,
         status_code=status_code,
@@ -104,8 +109,9 @@ def respond(
 class PageParams:
     def __init__(
         self,
-        page: int = Query(0, ge=0, description="Zero-based page index"),
+        page: int = Query(1, ge=0, description="Page index (1-based or 0-based)"),
         size: int = Query(10, ge=1, le=100, description="Page size (1-100)"),
     ):
         self.page = page
         self.size = size
+

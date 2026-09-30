@@ -12,6 +12,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { authApi } from "../api/auth";
 import { useAuthStore } from "../store/authStore";
+import { useToast } from "../components/ui/Toast";
 import { ApiError } from "../api/client";
 
 export const RegisterPage: React.FC = () => {
@@ -25,6 +26,7 @@ export const RegisterPage: React.FC = () => {
 
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,19 +51,20 @@ export const RegisterPage: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const user = await authApi.register({
+      await authApi.register({
         fullName: fullName.trim(),
         email: email.trim(),
         password,
       });
 
-      // Auto-login after registration
+      // Auto login after successful registration
       const tokenResp = await authApi.login({
         email: email.trim(),
         password,
       });
 
-      setAuth(tokenResp, user);
+      setAuth(tokenResp);
+      toast.success("Account created successfully. Welcome to DocuChat!");
       navigate("/documents", { replace: true });
     } catch (err: unknown) {
       if (err instanceof ApiError) {
@@ -76,7 +79,7 @@ export const RegisterPage: React.FC = () => {
           setFieldErrors(map);
         }
       } else {
-        setErrorMsg("Registration failed. Please check your inputs.");
+        setErrorMsg("Registration failed. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -84,18 +87,18 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* Left Column: Brand Hero */}
-      <div className="relative hidden lg:flex flex-1 flex-col justify-between p-12 bg-primary text-white overflow-hidden">
-        {/* Ambient Backdrops */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-300 opacity-20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-indigo-900 opacity-40 blur-2xl pointer-events-none" />
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+      {/* Left Column: Brand & Hero Value Proposition */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-950 text-white p-12 xl:p-16 flex-col justify-between relative overflow-hidden">
+        {/* Ambient blobs */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-primary-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
 
-        {/* Top: Header */}
+        {/* Top: Brand Header */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md p-2 flex items-center justify-center border border-white/20 shadow-sm">
-              <Bot className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-md">
+              <Bot className="w-6 h-6" />
             </div>
             <div>
               <div className="font-bold text-lg leading-tight tracking-tight">
@@ -178,22 +181,22 @@ export const RegisterPage: React.FC = () => {
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white">
               <Bot className="w-5 h-5" />
             </div>
-            <span className="font-bold text-slate-900 text-lg">DocuChat AI</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-lg">DocuChat AI</span>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 sm:p-10">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 sm:p-10 transition-colors">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                 Create an account
               </h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Enter your details to start chatting with your PDFs.
               </p>
             </div>
 
             {errorMsg && (
-              <div className="mb-5 p-3.5 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-rose-700 text-sm">
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
+              <div className="mb-5 p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 flex items-start gap-2.5 text-rose-700 dark:text-rose-300 text-sm">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
                 <div className="flex-1 text-xs font-medium">{errorMsg}</div>
               </div>
             )}
@@ -255,12 +258,12 @@ export const RegisterPage: React.FC = () => {
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-              <p className="text-xs text-slate-500">
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Already have an account?{" "}
                 <Link
                   to="/login"
-                  className="font-semibold text-primary hover:text-primary-hover underline underline-offset-4"
+                  className="font-semibold text-primary dark:text-indigo-400 hover:text-primary-hover underline underline-offset-4"
                 >
                   Sign in
                 </Link>

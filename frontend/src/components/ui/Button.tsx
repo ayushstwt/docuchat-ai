@@ -16,9 +16,9 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-primary text-white hover:bg-primary-hover active:bg-primary-800 focus-visible:ring-2 focus-visible:ring-primary/40 shadow-sm disabled:bg-primary/50",
   secondary:
-    "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 focus-visible:ring-2 focus-visible:ring-slate-300 shadow-sm disabled:opacity-50",
+    "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white active:bg-slate-100 dark:active:bg-slate-600 focus-visible:ring-2 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-600 shadow-sm disabled:opacity-50",
   ghost:
-    "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 focus-visible:ring-2 focus-visible:ring-slate-300 disabled:opacity-50",
+    "bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 active:bg-slate-200 dark:active:bg-slate-700 focus-visible:ring-2 focus-visible:ring-slate-300 disabled:opacity-50",
   danger:
     "bg-error text-white hover:bg-error-600 active:bg-error-700 focus-visible:ring-2 focus-visible:ring-error/40 shadow-sm disabled:bg-error/50",
 };

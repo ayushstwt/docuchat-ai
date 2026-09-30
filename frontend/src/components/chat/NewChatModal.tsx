@@ -94,21 +94,21 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
       <div className="flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-indigo-50 text-primary flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-primary dark:text-indigo-300 flex items-center justify-center">
             <MessageSquarePlus className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
               Start a new chat
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Select one or more indexed documents to ground your conversation with verified citations.
             </p>
           </div>
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 flex items-center gap-2 text-rose-700 text-xs">
+          <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -117,7 +117,7 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
         <form onSubmit={handleStartChat} className="flex flex-col gap-4">
           {/* Custom title input (optional) */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Conversation Title (optional)
             </label>
             <input
@@ -125,13 +125,13 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
               placeholder="e.g., Q3 Earnings Analysis"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full h-10 px-3 rounded-md bg-white border border-slate-300 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-10 px-3 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
           </div>
 
           {/* Search bar & Selection status */}
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between text-xs text-slate-600">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
               <span className="font-semibold">Select Grounding Documents:</span>
               {readyDocuments.length > 0 && (
                 <button
@@ -147,25 +147,25 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
             </div>
 
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search ready documents..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
           </div>
 
           {/* Document list */}
-          <div className="max-h-60 overflow-y-auto border border-slate-200 rounded-lg divide-y divide-slate-100 bg-slate-50/50">
+          <div className="max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-lg divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-850">
             {readyDocuments.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500">
+              <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
                 No indexed documents ready for chat. Please upload and wait for indexing.
               </div>
             ) : filteredDocs.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500">
+              <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
                 No documents match &ldquo;{search}&rdquo;
               </div>
             ) : (
@@ -177,8 +177,8 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
                     onClick={() => toggleSelect(doc.id)}
                     className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-indigo-50/80 border-l-4 border-l-primary"
-                        : "hover:bg-white"
+                        ? "bg-indigo-50/80 dark:bg-indigo-950/60 border-l-4 border-l-primary"
+                        : "hover:bg-white dark:hover:bg-slate-800"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -186,17 +186,17 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
                         className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
                           isSelected
                             ? "bg-primary border-primary text-white"
-                            : "border-slate-300 bg-white"
+                            : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
                         }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5" />}
                       </div>
-                      <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                      <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-semibold text-slate-800 truncate">
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                           {doc.title}
                         </span>
-                        <span className="text-[11px] text-slate-400 font-mono">
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
                           {doc.pageCount ? `${doc.pageCount} pages · ` : ""}
                           {(doc.fileSize / 1024).toFixed(1)} KB
                         </span>
@@ -209,8 +209,8 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
           </div>
 
           {/* Footer buttons */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-            <span className="text-xs text-slate-500 font-medium">
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               {selectedIds.length} document{selectedIds.length === 1 ? "" : "s"} selected
             </span>
             <div className="flex items-center gap-2">

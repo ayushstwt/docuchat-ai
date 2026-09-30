@@ -9,6 +9,7 @@ import { useAuthStore } from "./store/authStore";
 import { ToastProvider } from "./components/ui/Toast";
 import { Layout } from "./components/layout/Layout";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
@@ -23,34 +24,37 @@ export const App: React.FC = () => {
   }, [loadUser]);
 
   return (
-    <ToastProvider>
-      <Router>
-        <Routes>
-          {/* Public Authentication Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <Routes>
+            {/* Public Authentication Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected Application Routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="/documents" replace />} />
-            <Route path="documents" element={<DocumentsPage />} />
-            <Route path="chat" element={<ChatPage />} />
-            <Route path="chat/:conversationId" element={<ChatPage />} />
-            <Route path="activity-logs" element={<ActivityLogsPage />} />
-          </Route>
+            {/* Protected Application Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Navigate to="/documents" replace />} />
+              <Route path="documents" element={<DocumentsPage />} />
+              <Route path="chat" element={<ChatPage />} />
+              <Route path="chat/:conversationId" element={<ChatPage />} />
+              <Route path="activity" element={<ActivityLogsPage />} />
+              <Route path="activity-logs" element={<Navigate to="/activity" replace />} />
+            </Route>
 
-          {/* Catch-all fallback */}
-          <Route path="*" element={<Navigate to="/documents" replace />} />
-        </Routes>
-      </Router>
-    </ToastProvider>
+            {/* Catch-all fallback */}
+            <Route path="*" element={<Navigate to="/documents" replace />} />
+          </Routes>
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 };
 

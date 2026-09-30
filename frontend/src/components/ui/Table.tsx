@@ -7,7 +7,7 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
 
 export const Table: React.FC<TableProps> = ({ children, className = "", ...props }) => {
   return (
-    <div className="w-full overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+    <div className="w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 shadow-sm transition-colors">
       <table className={`w-full text-left border-collapse ${className}`} {...props}>
         {children}
       </table>
@@ -22,7 +22,7 @@ export const TableHeader: React.FC<React.HTMLAttributes<HTMLTableSectionElement>
 }) => {
   return (
     <thead
-      className={`bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider ${className}`}
+      className={`bg-slate-50 dark:bg-slate-850/60 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider ${className}`}
       {...props}
     >
       {children}
@@ -36,7 +36,7 @@ export const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> 
   ...props
 }) => {
   return (
-    <tbody className={`divide-y divide-slate-100 text-sm ${className}`} {...props}>
+    <tbody className={`divide-y divide-slate-100 dark:divide-slate-800/60 text-sm ${className}`} {...props}>
       {children}
     </tbody>
   );
@@ -49,7 +49,7 @@ export const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({
 }) => {
   return (
     <tr
-      className={`hover:bg-slate-50/70 transition-colors text-slate-700 ${className}`}
+      className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors text-slate-700 dark:text-slate-300 ${className}`}
       {...props}
     >
       {children}
@@ -75,7 +75,7 @@ export const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> =
   ...props
 }) => {
   return (
-    <td className={`px-4 py-3 text-slate-800 ${className}`} {...props}>
+    <td className={`px-4 py-3 text-slate-800 dark:text-slate-200 ${className}`} {...props}>
       {children}
     </td>
   );

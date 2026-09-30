@@ -19,6 +19,7 @@ import { Source } from "../api/types";
 import { MessageBubble } from "../components/chat/MessageBubble";
 import { SourceDrawer } from "../components/chat/SourceDrawer";
 import { NewChatModal } from "../components/chat/NewChatModal";
+import { SkeletonChatBubble, Skeleton } from "../components/ui/Skeleton";
 import { Button } from "../components/ui/Button";
 import { useToast } from "../components/ui/Toast";
 import { ApiError } from "../api/client";
@@ -191,11 +192,11 @@ export const ChatPage: React.FC = () => {
   }, [conversations, chatSearch]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-slate-50">
+    <div className="flex h-full w-full overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* 1. Conversations Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full">
+      <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 h-full transition-colors">
         {/* Top actions & search */}
-        <div className="p-3 border-b border-slate-100 flex flex-col gap-2.5">
+        <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex flex-col gap-2.5">
           <Button
             variant="primary"
             size="md"
@@ -207,13 +208,13 @@ export const ChatPage: React.FC = () => {
           </Button>
 
           <div className="relative w-full">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" />
             <input
               type="text"
               placeholder="Search chats..."
               value={chatSearch}
               onChange={(e) => setChatSearch(e.target.value)}
-              className="w-full h-8 pl-8 pr-2.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-8 pl-8 pr-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
           </div>
         </div>
@@ -221,11 +222,13 @@ export const ChatPage: React.FC = () => {
         {/* Conversation list */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {isLoadingConvs ? (
-            <div className="p-4 text-center text-xs text-slate-400">
-              Loading chats...
+            <div className="p-3 space-y-2">
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-10 w-full rounded-lg" />
             </div>
           ) : filteredConversations.length === 0 ? (
-            <div className="p-4 text-center text-xs text-slate-400">
+            <div className="p-4 text-center text-xs text-slate-400 dark:text-slate-500">
               No conversations found.
             </div>
           ) : (
@@ -237,21 +240,21 @@ export const ChatPage: React.FC = () => {
                   onClick={() => navigate(`/chat/${conv.id}`)}
                   className={`group relative rounded-lg p-2.5 flex items-center justify-between cursor-pointer transition-colors ${
                     isActive
-                      ? "bg-indigo-50/80 text-primary border border-indigo-100 font-medium"
-                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-indigo-50/80 dark:bg-indigo-950/60 text-primary dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900 font-medium"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-1">
                     <MessageSquare
                       className={`w-4 h-4 shrink-0 ${
-                        isActive ? "text-primary" : "text-slate-400"
+                        isActive ? "text-primary dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"
                       }`}
                     />
                     <div className="min-w-0 flex flex-col">
                       <span className="text-xs truncate font-medium">
                         {conv.title}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                         {conv.documentIds.length} doc
                         {conv.documentIds.length === 1 ? "" : "s"}
                       </span>
@@ -265,7 +268,7 @@ export const ChatPage: React.FC = () => {
                         deleteConvMutation.mutate(conv.id);
                       }
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-rose-600 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-opacity"
                     title="Delete Chat"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -278,30 +281,30 @@ export const ChatPage: React.FC = () => {
       </aside>
 
       {/* 2. Chat Feed Area */}
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 h-full relative">
+      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-full relative transition-colors">
         {activeConversation ? (
           <>
             {/* Header */}
-            <header className="h-14 px-6 bg-white border-b border-slate-200 shrink-0 flex items-center justify-between z-10">
+            <header className="h-14 px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0 flex items-center justify-between z-10 transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
-                  <h2 className="text-sm font-bold text-slate-900 truncate">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                     {activeConversation.title}
                   </h2>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium flex items-center gap-1">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                     Grounded
                   </span>
                 </div>
 
                 {/* Grounding documents chips */}
-                <div className="hidden lg:flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                <div className="hidden lg:flex items-center gap-1.5 pl-3 border-l border-slate-200 dark:border-slate-800">
                   {activeConversation.documentIds.map((docId) => (
                     <span
                       key={docId}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-mono max-w-[140px] truncate"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-mono max-w-[140px] truncate"
                     >
-                      <FileText className="w-3 h-3 text-primary shrink-0" />
+                      <FileText className="w-3 h-3 text-primary dark:text-indigo-400 shrink-0" />
                       <span className="truncate">
                         {docMap.get(docId) || `Doc #${docId}`}
                       </span>
@@ -323,7 +326,7 @@ export const ChatPage: React.FC = () => {
                           null
                     )
                   }
-                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors"
                   title="Toggle Sources"
                 >
                   <BookOpen className="w-4 h-4" />
@@ -335,18 +338,19 @@ export const ChatPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-5">
               <div className="max-w-3xl mx-auto space-y-5">
                 {isLoadingMessages ? (
-                  <div className="p-8 text-center text-xs text-slate-400">
-                    Loading message history...
+                  <div className="space-y-6 pt-4">
+                    <SkeletonChatBubble isUser />
+                    <SkeletonChatBubble />
                   </div>
                 ) : historicalMessages.length === 0 && !isStreaming ? (
                   <div className="p-12 text-center flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 text-primary flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-primary dark:text-indigo-300 flex items-center justify-center mb-3">
                       <Sparkles className="w-6 h-6" />
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 mb-1">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
                       Ask anything about your documents
                     </h3>
-                    <p className="text-xs text-slate-500 max-w-sm">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
                       Responses are strictly grounded in your uploaded documents and include verified citations.
                     </p>
                   </div>
@@ -378,14 +382,14 @@ export const ChatPage: React.FC = () => {
             </div>
 
             {/* Bottom Chat Input Bar */}
-            <footer className="p-4 bg-white border-t border-slate-200 shrink-0">
+            <footer className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0 transition-colors">
               <div className="max-w-3xl mx-auto space-y-2">
                 {isStreaming && (
                   <div className="flex justify-center mb-1">
                     <button
                       type="button"
                       onClick={handleStopStreaming}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-rose-50 text-rose-600 rounded-full border border-rose-200 shadow-xs text-xs font-medium transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-full border border-rose-200 dark:border-rose-900 shadow-xs text-xs font-medium transition-colors cursor-pointer"
                     >
                       <Square className="w-3 h-3 fill-current" />
                       Stop generating
@@ -395,7 +399,7 @@ export const ChatPage: React.FC = () => {
 
                 <form
                   onSubmit={handleSendMessage}
-                  className="bg-slate-50 rounded-xl p-2.5 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all shadow-xs"
+                  className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-2.5 border border-slate-200 dark:border-slate-700 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all shadow-xs"
                 >
                   <textarea
                     rows={2}
@@ -408,11 +412,11 @@ export const ChatPage: React.FC = () => {
                       }
                     }}
                     placeholder="Ask a question about your documents, compare metrics, or cite specifics..."
-                    className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none resize-none font-sans"
+                    className="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none resize-none font-sans"
                   />
 
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span className="text-[10px] text-slate-400 font-mono">
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                       {inputMessage.length} / 4,000
                     </span>
 
@@ -428,10 +432,10 @@ export const ChatPage: React.FC = () => {
                   </div>
                 </form>
 
-                <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
+                <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
                   <span>Enter to send · Shift+Enter for new line</span>
                   <span>•</span>
-                  <span className="text-emerald-600 font-medium">Grounded RAG Guard active</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Grounded RAG Guard active</span>
                 </div>
               </div>
             </footer>
@@ -439,13 +443,13 @@ export const ChatPage: React.FC = () => {
         ) : (
           /* Empty / No Selected Conversation */
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-primary mb-3 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center text-primary dark:text-indigo-300 mb-3 shadow-xs">
               <MessageSquare className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
               Start a new conversation
             </h3>
-            <p className="text-xs text-slate-500 max-w-sm mb-5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-5">
               Select one or more indexed documents to begin asking questions.
             </p>
             <Button

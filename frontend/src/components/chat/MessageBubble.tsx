@@ -35,7 +35,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div className="bg-primary text-white px-4 py-3 rounded-2xl rounded-tr-xs shadow-xs text-sm leading-relaxed whitespace-pre-wrap">
           {message.content}
         </div>
-        <span className="text-[10px] text-slate-400 font-mono pr-1">
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono pr-1">
           {message.createdOn
             ? new Date(message.createdOn).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -60,9 +60,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
 
       <div className="flex-1 min-w-0 space-y-2">
-        <div className="bg-white rounded-2xl rounded-tl-xs p-5 shadow-xs border border-slate-200/80 text-slate-900 space-y-3">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl rounded-tl-xs p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-slate-100 space-y-3 transition-colors">
           {/* Content rendered with ReactMarkdown */}
-          <div className="prose prose-sm max-w-none text-slate-800 leading-relaxed font-sans text-sm prose-p:my-2 prose-headings:font-semibold prose-code:font-mono prose-code:text-xs prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-table:my-3 prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-th:bg-slate-50 prose-table:border prose-th:border prose-td:border">
+          <div className="prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 leading-relaxed font-sans text-sm prose-p:my-2 prose-headings:font-semibold prose-code:font-mono prose-code:text-xs prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-table:my-3 prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-th:bg-slate-50 dark:prose-th:bg-slate-800 prose-table:border prose-th:border prose-td:border dark:prose-table:border-slate-800">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content || ""}
             </ReactMarkdown>
@@ -73,8 +73,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
           {/* Sources Section */}
           {message.sources && message.sources.length > 0 && (
-            <div className="pt-2 border-t border-slate-100">
-              <div className="text-[11px] font-semibold uppercase text-slate-400 font-mono mb-1">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="text-[11px] font-semibold uppercase text-slate-400 dark:text-slate-500 font-mono mb-1">
                 Verified Sources
               </div>
               <SourceChips
@@ -86,17 +86,17 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
           {/* Metadata & Actions */}
           {!message.isStreaming && (
-            <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-50">
+            <div className="pt-2 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-slate-850">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
+                  className="hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-600 font-medium">Copied</span>
+                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">Copied</span>
                     </>
                   ) : (
                     <>

@@ -66,17 +66,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((t) => {
           const icons = {
-            success: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
-            error: <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />,
-            warning: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
-            info: <Info className="w-5 h-5 text-blue-600 shrink-0" />,
+            success: <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
+            error: <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />,
+            warning: <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />,
+            info: <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />,
           };
 
           const borderColors = {
-            success: "border-emerald-200 bg-white",
-            error: "border-rose-200 bg-white",
-            warning: "border-amber-200 bg-white",
-            info: "border-blue-200 bg-white",
+            success: "border-emerald-200 dark:border-emerald-800/80 bg-white dark:bg-slate-900",
+            error: "border-rose-200 dark:border-rose-800/80 bg-white dark:bg-slate-900",
+            warning: "border-amber-200 dark:border-amber-800/80 bg-white dark:bg-slate-900",
+            info: "border-blue-200 dark:border-blue-800/80 bg-white dark:bg-slate-900",
           };
 
           return (
@@ -87,15 +87,15 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               {icons[t.type]}
               <div className="flex-1 text-sm">
                 {t.title && (
-                  <h4 className="font-semibold text-slate-900 leading-none mb-1">
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-100 leading-none mb-1">
                     {t.title}
                   </h4>
                 )}
-                <p className="text-slate-600 text-xs leading-relaxed">{t.message}</p>
+                <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">{t.message}</p>
               </div>
               <button
                 onClick={() => removeToast(t.id)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

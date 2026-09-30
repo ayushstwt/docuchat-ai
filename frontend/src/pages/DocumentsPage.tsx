@@ -23,6 +23,7 @@ import { Button } from "../components/ui/Button";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { useToast } from "../components/ui/Toast";
 import { NewChatModal } from "../components/chat/NewChatModal";
+import { SkeletonTable } from "../components/ui/Skeleton";
 import { ApiError } from "../api/client";
 
 export const DocumentsPage: React.FC = () => {
@@ -152,43 +153,43 @@ export const DocumentsPage: React.FC = () => {
       {/* 1. Header & Quick Metrics */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-500 mb-1">
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 mb-1">
             <span>Workspace</span>
             <span>/</span>
-            <span className="text-primary font-semibold">Documents</span>
+            <span className="text-primary dark:text-indigo-400 font-semibold">Documents</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Your Documents
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Upload PDFs, parse vector embeddings, and initiate contextual conversational analysis.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-primary">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-primary dark:text-indigo-300">
               <FolderOpen className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">
+              <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">
                 Repository
               </div>
-              <div className="text-sm font-semibold text-slate-800">
+              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 {metadata?.totalItems || documents.length} files
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
               <PieChart className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">
+              <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">
                 Page Total
               </div>
-              <div className="text-sm font-semibold text-slate-800">
+              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 {totalMB} MB total
               </div>
             </div>
@@ -218,10 +219,10 @@ export const DocumentsPage: React.FC = () => {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`relative group cursor-pointer bg-white rounded-xl border-2 border-dashed p-8 text-center transition-all ${
+          className={`relative group cursor-pointer bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed p-8 text-center transition-all ${
             isDragging
-              ? "border-primary bg-indigo-50/50"
-              : "border-slate-300 hover:border-primary hover:bg-slate-50/50"
+              ? "border-primary bg-indigo-50/50 dark:bg-indigo-950/20"
+              : "border-slate-300 dark:border-slate-700 hover:border-primary dark:hover:border-primary hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
           }`}
         >
           <input
@@ -237,17 +238,17 @@ export const DocumentsPage: React.FC = () => {
             }}
           />
           <div className="flex flex-col items-center justify-center pointer-events-none">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-primary group-hover:bg-primary group-hover:text-white flex items-center justify-center mb-3 transition-colors shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-primary dark:text-indigo-300 group-hover:bg-primary group-hover:text-white flex items-center justify-center mb-3 transition-colors shadow-xs">
               <UploadCloud className="w-6 h-6" />
             </div>
-            <div className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">
-              Drag and drop a PDF here, or <span className="text-primary underline">browse files</span>
+            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-indigo-400 transition-colors">
+              Drag and drop a PDF here, or <span className="text-primary dark:text-indigo-400 underline">browse files</span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Single PDF files up to 20 MB · Vectorized chunking instantly enabled
             </p>
-            <div className="mt-3 inline-flex items-center gap-1.5 bg-slate-100 px-3 py-1 rounded-full text-[11px] text-slate-600 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="mt-3 inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               Automatic OCR, Page Extraction &amp; Embedding Pipeline
             </div>
           </div>
@@ -255,22 +256,22 @@ export const DocumentsPage: React.FC = () => {
 
         {/* Upload Progress Bar */}
         {uploadProgress !== null && (
-          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between gap-4 animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4 animate-in fade-in">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-lg bg-indigo-50 text-primary flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-primary dark:text-indigo-300 flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold text-slate-900 truncate">
+                <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                   {uploadingFileName}
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
                   Uploading &amp; generating token embeddings... {uploadProgress}%
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-4 w-48">
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
@@ -281,14 +282,14 @@ export const DocumentsPage: React.FC = () => {
         )}
 
         {uploadError && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-between text-xs text-rose-700">
+          <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 flex items-center justify-between text-xs text-rose-700 dark:text-rose-300">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{uploadError}</span>
             </div>
             <button
               onClick={() => setUploadError(null)}
-              className="text-rose-500 hover:text-rose-800"
+              className="text-rose-500 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200"
             >
               <X className="w-4 h-4" />
             </button>
@@ -297,25 +298,25 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* 3. Documents Master Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col transition-colors">
         {/* Toolbar */}
-        <div className="p-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <h2 className="text-sm font-bold text-slate-900">All documents</h2>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">All documents</h2>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               {metadata?.totalItems ?? documents.length} files
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative w-56">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Filter by title..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -325,7 +326,7 @@ export const DocumentsPage: React.FC = () => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-9 px-3 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 cursor-pointer font-medium text-slate-700"
+              className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-primary/20 cursor-pointer font-medium text-slate-700 dark:text-slate-300"
             >
               <option value="all">All statuses</option>
               <option value="READY">Ready</option>
@@ -337,7 +338,7 @@ export const DocumentsPage: React.FC = () => {
             <button
               onClick={() => refetch()}
               title="Refresh list"
-              className="h-9 w-9 rounded-md border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors"
+              className="h-9 w-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             </button>
@@ -346,19 +347,19 @@ export const DocumentsPage: React.FC = () => {
 
         {/* Table Content */}
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-slate-500">
-            Loading repository documents...
+          <div className="p-4">
+            <SkeletonTable rows={5} cols={5} />
           </div>
         ) : documents.length === 0 ? (
           /* Empty State */
           <div className="p-12 text-center flex flex-col items-center justify-center">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-primary mb-3 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center text-primary dark:text-indigo-400 mb-3 shadow-xs">
               <FileText className="w-7 h-7" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
               Upload your first PDF
             </h3>
-            <p className="text-xs text-slate-500 max-w-sm mb-5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-5">
               We&apos;ll parse it, chunk the pages, and let you ask questions grounded in your document.
             </p>
             <Button
@@ -386,14 +387,14 @@ export const DocumentsPage: React.FC = () => {
               <TableBody>
                 {filteredDocs.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell className="font-medium text-slate-900">
+                    <TableCell className="font-medium text-slate-900 dark:text-slate-100">
                       <div className="flex items-center gap-2.5">
-                        <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                        <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
                         <div className="flex flex-col min-w-0">
                           <span className="truncate text-xs font-semibold" title={doc.title}>
                             {doc.title}
                           </span>
-                          <span className="text-[11px] text-slate-400 truncate font-mono">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-mono">
                             {doc.originalFilename}
                           </span>
                         </div>
@@ -402,13 +403,13 @@ export const DocumentsPage: React.FC = () => {
                     <TableCell>
                       <StatusBadge status={doc.status} />
                     </TableCell>
-                    <TableCell className="text-xs text-slate-600 font-mono">
+                    <TableCell className="text-xs text-slate-600 dark:text-slate-300 font-mono">
                       {doc.pageCount ? `${doc.pageCount} pgs` : "—"}
                     </TableCell>
-                    <TableCell className="text-xs text-slate-600 font-mono">
+                    <TableCell className="text-xs text-slate-600 dark:text-slate-300 font-mono">
                       {(doc.fileSize / 1024).toFixed(1)} KB
                     </TableCell>
-                    <TableCell className="text-xs text-slate-500">
+                    <TableCell className="text-xs text-slate-500 dark:text-slate-400">
                       {new Date(doc.createdOn).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
@@ -418,7 +419,7 @@ export const DocumentsPage: React.FC = () => {
                             variant="secondary"
                             size="sm"
                             onClick={() => handleStartChatWithDoc(doc.id)}
-                            leftIcon={<MessageSquare className="w-3.5 h-3.5 text-primary" />}
+                            leftIcon={<MessageSquare className="w-3.5 h-3.5 text-primary dark:text-indigo-400" />}
                           >
                             Chat
                           </Button>
@@ -429,7 +430,7 @@ export const DocumentsPage: React.FC = () => {
                               deleteMutation.mutate(doc.id);
                             }
                           }}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition-colors"
                           title="Delete Document"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -443,7 +444,7 @@ export const DocumentsPage: React.FC = () => {
 
             {/* Pagination Controls */}
             {metadata && metadata.totalPages > 1 && (
-              <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>
                   Page {metadata.currentPage} of {metadata.totalPages} ({metadata.totalItems} total)
                 </span>

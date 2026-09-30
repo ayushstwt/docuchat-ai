@@ -126,3 +126,34 @@ class DocumentRepository:
         )
         result = await self.db.execute(stmt)
         return result.rowcount > 0
+
+    async def mark_stale_processing_as_failed(
+        self,
+        cutoff: datetime,
+        error_code: str = "E999",
+    ) -> List[int]:
+        """Finds documents stuck in PROCESSING older than cutoff and marks them FAILED."""
+        stmt = (
+            select(Document.id)
+            .where(
+                Document.status == DocumentStatus.PROCESSING,
+                Document.is_deleted.is_(False),
+                Document.updated_on < cutoff,
+            )
+        )
+        result = await self.db.execute(stmt)
+        stale_ids = list(result.scalars().all())
+
+        if stale_ids:
+            update_stmt = (
+                update(Document)
+                .where(Document.id.in_(stale_ids))
+                .values(
+                    status=DocumentStatus.FAILED,
+                    error_code=error_code,
+                    updated_on=datetime.now(timezone.utc),
+                )
+            )
+            await self.db.execute(update_stmt)
+
+        return stale_ids

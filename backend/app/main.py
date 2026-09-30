@@ -1,15 +1,21 @@
+from datetime import datetime, timedelta, timezone
+import logging
+from typing import AsyncGenerator
 import uuid
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import get_settings
+from app.core.database import AsyncSessionLocal
 from app.core.logging import request_id_ctx_var, setup_logging
 from app.exceptions.handlers import register_exception_handlers
+from app.repositories.document_repo import DocumentRepository
 from app.routers import activity_logs, auth, conversations, documents, health
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
@@ -37,14 +43,34 @@ class SecurityAndTracingMiddleware(BaseHTTPMiddleware):
         return response
 
 
+async def recover_stuck_documents() -> None:
+    """Finds documents stuck in PROCESSING for more than 15 minutes and marks them FAILED."""
+    try:
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
+        async with AsyncSessionLocal() as session:
+            repo = DocumentRepository(session)
+            stale_ids = await repo.mark_stale_processing_as_failed(cutoff, error_code="E999")
+            await session.commit()
+            if stale_ids:
+                logger.warning(
+                    f"Startup recovery: marked {len(stale_ids)} stuck processing documents as FAILED: {stale_ids}"
+                )
+    except Exception as exc:
+        logger.warning(f"Startup recovery encountered error: {exc}", exc_info=True)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
+    await recover_stuck_documents()
     yield
 
 
 app = FastAPI(
     title="DocuChat AI",
+    docs_url="/docs" if settings.enable_docs else None,
+    redoc_url="/redoc" if settings.enable_docs else None,
+    openapi_url="/openapi.json" if settings.enable_docs else None,
     lifespan=lifespan,
 )
 
@@ -54,7 +80,7 @@ app.add_middleware(SecurityAndTracingMiddleware)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

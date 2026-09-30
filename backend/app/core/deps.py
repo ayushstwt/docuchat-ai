@@ -5,6 +5,7 @@ from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.error_codes import ErrorCode
+from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import decode_token
 from app.exceptions.base import UnauthorizedException
@@ -32,7 +33,11 @@ def get_user_or_ip_key(request: Request) -> str:
     return get_remote_address(request)
 
 
-limiter = Limiter(key_func=get_user_or_ip_key)
+_settings = get_settings()
+limiter = Limiter(
+    key_func=get_user_or_ip_key,
+    storage_uri=_settings.rate_limit_storage_url,
+)
 
 
 async def get_current_user(

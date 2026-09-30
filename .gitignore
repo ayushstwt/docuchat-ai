@@ -6,6 +6,8 @@
 !.env.*.example
 backend/.env
 frontend/.env
+deploy/env/*.env
+!deploy/env/*.env.example
 
 # Python & Bytecode
 __pycache__/
@@ -64,9 +66,11 @@ coverage.xml
 logs/
 *.log
 *.sql
+!deploy/db/init.sql
 *.dump
 *.sqlite
 *.db
+backups/
 
 # Backend Uploads
 backend/uploads/*

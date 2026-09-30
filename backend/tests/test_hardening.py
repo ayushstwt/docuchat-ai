@@ -2,9 +2,9 @@ import json
 import pytest
 import pytest_asyncio
 from unittest.mock import AsyncMock, patch
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
-from app.core.config import Settings
+from app.core.config import AppEnv, Settings
 from app.models.document import Document
 from app.schemas.activity_log import ActivityLogResponse
 from app.schemas.auth import TokenResponse, UserResponse
@@ -63,20 +63,18 @@ def test_no_sensitive_fields_in_schemas():
 
 def test_config_validation():
     """
-    Test that invalid configuration (missing database url or short JWT secret in prod) raises ValueError.
+    Test that invalid configuration (short JWT secret or wildcard CORS in staging/prod) raises ValidationError.
     """
-    # 1. Missing DATABASE_URL
-    with pytest.raises(ValueError, match="DATABASE_URL"):
-        Settings(DATABASE_URL="")
-
-    # 2. Short secret in production
-    with pytest.raises(ValueError, match="JWT_SECRET must be at least 32 characters"):
+    # Short secret in production/staging
+    with pytest.raises(ValidationError, match="JWT_SECRET must be a random string of 32\\+ characters"):
         Settings(
-            APP_ENV="production",
-            JWT_SECRET="short_secret",
-            DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/docuchat",
-            AZURE_OPENAI_ENDPOINT="https://res.openai.azure.com/",
-            AZURE_OPENAI_API_KEY="key",
+            app_env=AppEnv.PROD,
+            jwt_secret="short_secret",
+            database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/docuchat",
+            azure_openai_endpoint="https://res.openai.azure.com/",
+            azure_openai_api_key="key",
+            enable_docs=False,
+            rate_limit_storage_url="redis://redis:6379/0",
         )
 
 

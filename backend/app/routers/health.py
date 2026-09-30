@@ -9,6 +9,19 @@ from app.schemas.common import ApiResponse, respond
 router = APIRouter(prefix="/health", tags=["Health"])
 
 
+@router.get("/live", summary="Liveness Health Check")
+async def health_live() -> Any:
+    payload = {
+        "app": "DocuChat AI",
+        "status": "alive",
+    }
+    envelope = ApiResponse.success(
+        message="Process is alive",
+        data=payload,
+    )
+    return respond(envelope)
+
+
 @router.get("", summary="Health Check")
 async def health_check(db: AsyncSession = Depends(get_db)) -> Any:
     db_status = "up"

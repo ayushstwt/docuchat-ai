@@ -45,7 +45,7 @@ jobs:
       - name: Run Backend Pytest Suite
         working-directory: backend
         env:
-          APP_ENV: test
+          APP_ENV: local
           DATABASE_URL: postgresql+asyncpg://postgres:postgrespassword@localhost:5432/docuchat_test_db
           JWT_SECRET: test_jwt_secret_key_minimum_32_characters_for_ci_pipeline
           JWT_ACCESS_MINUTES: 60
@@ -58,7 +58,7 @@ jobs:
           EMBEDDING_DIMENSIONS: 1536
           UPLOAD_DIR: uploads
           MAX_UPLOAD_MB: 20
-          CORS_ORIGINS: '["http://localhost:5173"]'
+          CORS_ORIGINS: http://localhost:5173
         run: |
           python -m pytest -q
 
@@ -88,5 +88,22 @@ jobs:
       - name: Build production bundle
         working-directory: frontend
         env:
-          VITE_API_BASE_URL: http://localhost:8000/api/v1
+          VITE_API_BASE_URL: /api/v1
         run: npm run build
+
+  compose-validation:
+    name: Validate Compose Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate compose files
+        run: |
+          for e in dev staging prod; do
+            cp deploy/env/$e.env.example deploy/env/$e.env
+            profile=""; [ "$e" != "dev" ] && profile="--profile edge"
+            docker compose --env-file deploy/env/$e.env $profile \
+              -f deploy/docker-compose.yml -f deploy/docker-compose.$e.yml config -q
+          done

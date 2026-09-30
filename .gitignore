@@ -1,4 +1,13 @@
-# Python
+# Environment variables
+.env
+.env.*
+!.env.example
+!*.env.example
+!.env.*.example
+backend/.env
+frontend/.env
+
+# Python & Bytecode
 __pycache__/
 *.py[cod]
 *$py.class
@@ -28,12 +37,7 @@ venv/
 ENV/
 env/
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Node / Frontend
+# Node & Frontend
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -41,18 +45,34 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 .vite/
+frontend/dist/
 dist/
 dist-ssr/
+build/
+*.tsbuildinfo
 *.local
 
-# Backend uploads
-backend/uploads/*
-!backend/uploads/.gitkeep
-
-# Testing & Coverage
+# Testing, Types & Coverage
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
 htmlcov/
+coverage.xml
+
+# Logs & Databases
+logs/
+*.log
+*.sql
+*.dump
+*.sqlite
+*.db
+
+# Backend Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 
 # IDE & OS
 .idea/
@@ -62,3 +82,7 @@ htmlcov/
 *~
 .DS_Store
 Thumbs.db
+
+# Documentation & Design Assets
+stitch_docuchat_ai_design_system/
+DocuChat_AI_PRD_and_Prompts*

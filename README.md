@@ -1,6 +1,36 @@
 # DocuChat AI
 
-DocuChat AI is a full-stack, enterprise-grade "Chat with your PDFs" application featuring semantic retrieval augmented generation (RAG), pgvector similarity embeddings, real-time SSE streaming responses with verified page citations, JWT authentication with silent token refresh, activity audit logging, and light/dark theme modes.
+DocuChat AI is a full-stack, enterprise-grade "Chat with your PDFs" application featuring semantic retrieval-augmented generation (RAG), pgvector vector similarity search, real-time Server-Sent Events (SSE) streaming responses with verified page citations, JWT authentication with silent token refresh, audit logging, and light/dark theme modes.
+
+---
+
+## Features
+
+- **Document Ingestion & Chunking**: Upload PDF documents up to 20MB with token-bounded sliding window chunking using `tiktoken`.
+- **Vector Search with pgvector**: High-dimensional semantic embeddings stored in PostgreSQL with HNSW / Cosine distance querying.
+- **Real-Time Token Streaming**: Server-Sent Events (SSE) endpoint providing responsive conversational AI streams with verified source citations.
+- **Multi-Tenant Data Isolation**: Strict user-level access controls across documents, chunks, conversations, and audit logs.
+- **Enterprise Security**: Argon2id password hashing, rotating JWT access & refresh tokens, security headers (HSTS, CSP, XSS-Protection, Sniff-Protection), and Rate Limiting.
+- **Comprehensive Audit Trail**: Automatic user activity recording (`REGISTER`, `LOGIN`, `DOCUMENT_UPLOAD`, `DOCUMENT_DELETE`, `CONVERSATION_CREATE`, `CHAT_MESSAGE`).
+- **Modern Responsive UI**: React 18 + Tailwind CSS frontend with dark mode persistence, interactive source inspection drawer, and drag-and-drop document uploads.
+
+---
+
+## Tech Stack
+
+### Backend
+- **Framework**: FastAPI (Python 3.11+)
+- **Database & ORM**: PostgreSQL 15+ with `pgvector`, SQLAlchemy 2.0 (AsyncIO), Alembic
+- **AI & Embeddings**: Azure OpenAI (`gpt-4o` / `gpt-5-mini`, `text-embedding-3-small` / embeddings)
+- **Tokenization & PDF Extraction**: `tiktoken` (`cl100k_base`), `pypdf`
+- **Security & Validation**: Argon2 (`argon2-cffi`), PyJWT, Pydantic v2, SlowAPI (Rate Limiting)
+- **Testing**: Pytest, Pytest-AsyncIO, HTTPX
+
+### Frontend
+- **Framework**: React 18, Vite, TypeScript
+- **State & Server Cache**: Zustand, TanStack Query (React Query)
+- **Styling & UI**: Tailwind CSS, Lucide React, Markdown Renderer (`react-markdown`, `remark-gfm`)
+- **Routing**: React Router v6
 
 ---
 
@@ -8,18 +38,36 @@ DocuChat AI is a full-stack, enterprise-grade "Chat with your PDFs" application 
 
 ```text
 docuchat-ai/
-├── backend/                  # FastAPI (Python 3.11+), SQLAlchemy 2.0 async, Alembic, pgvector, Azure OpenAI
+├── backend/                  # FastAPI backend application
 │   ├── alembic/              # Database migration scripts
-│   ├── app/                  # Application code (routers, schemas, models, services, core config)
-│   ├── tests/                # Automated pytest suite (27 unit & integration tests)
+│   ├── app/                  # Application source code
+│   │   ├── constants/        # Enums and error codes
+│   │   ├── core/             # Config, database, security, dependencies, logging
+│   │   ├── exceptions/       # Custom exceptions and global handlers
+│   │   ├── models/           # SQLAlchemy ORM models
+│   │   ├── repositories/     # Database access layer
+│   │   ├── routers/          # FastAPI API route controllers
+│   │   ├── schemas/          # Pydantic request/response models
+│   │   ├── scripts/          # CLI helper scripts
+│   │   └── services/         # Business logic (chat, document, pdf, auth, retrieval)
+│   ├── tests/                # Automated pytest unit & integration test suite
+│   ├── uploads/              # Local storage for uploaded PDF files
+│   ├── .env.example          # Environment variables template
+│   ├── alembic.ini           # Alembic configuration
 │   └── requirements.txt      # Python dependencies
-├── frontend/                 # React 18, Vite, TypeScript, Tailwind CSS, TanStack Query, Zustand
-│   ├── src/                  # Application code (components, pages, api, store)
-│   └── package.json          # Frontend dependencies and build/lint scripts
-├── scripts/
-│   ├── dev.sh                # Linux / macOS / Git Bash runner (backend + frontend)
-│   └── dev.ps1               # Windows PowerShell runner (backend + frontend)
-└── README.md
+├── frontend/                 # React Vite frontend application
+│   ├── src/                  # Application source code
+│   │   ├── api/              # API clients and SSE stream consumer
+│   │   ├── components/       # Reusable UI, layout, and chat components
+│   │   ├── pages/            # View pages (Login, Register, Documents, Chat, Logs)
+│   │   └── store/            # Zustand state stores
+│   ├── .env.example          # Frontend environment variables template
+│   ├── package.json          # Node dependencies & scripts
+│   └── vite.config.ts        # Vite build configuration
+├── scripts/                  # Cross-platform startup scripts (dev.ps1, dev.sh)
+├── .github/workflows/        # Continuous Integration (CI) workflows
+├── .gitignore                # Root gitignore
+└── README.md                 # Project documentation
 ```
 
 ---
@@ -27,180 +75,174 @@ docuchat-ai/
 ## Prerequisites
 
 - **Python**: 3.11+
-- **Node.js**: 20+ and npm
-- **PostgreSQL**: 15+ with the `pgvector` extension installed
-- **Azure OpenAI**: Provisioned instance with chat completion (e.g. `gpt-4o`) and text embedding (e.g. `text-embedding-3-small`, 1536 dimensions) deployments
+- **Node.js**: 20+ and `npm`
+- **PostgreSQL**: 15+ with the `pgvector` extension enabled
+- **Azure OpenAI**: Provisioned instance with chat completion and text embedding deployments
 
 ---
 
-## Run the Whole Project Locally
+## Environment Variables Configuration
 
-Follow these step-by-step instructions to run the entire project locally without Docker:
+### Backend (`backend/.env`)
+
+| Variable Name | Description | Example / Default |
+|---|---|---|
+| `APP_ENV` | Environment mode (`development`, `production`, `test`) | `development` |
+| `DATABASE_URL` | PostgreSQL async connection string | `postgresql+asyncpg://postgres:postgres@localhost:5432/docuchat_db` |
+| `JWT_SECRET` | Secret key for signing JWT tokens (min 32 chars in production) | `replace_with_a_secure_random_jwt_secret_key_minimum_32_chars` |
+| `JWT_ACCESS_MINUTES` | Access token lifespan in minutes | `60` |
+| `JWT_REFRESH_DAYS` | Refresh token lifespan in days | `7` |
+| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI resource URL | `https://your-resource-name.openai.azure.com/` |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI API Key | `your_azure_openai_api_key` |
+| `AZURE_OPENAI_API_VERSION`| Azure OpenAI API version | `2024-02-01` |
+| `AZURE_OPENAI_CHAT_DEPLOYMENT` | Deployment name for chat completions | `gpt-4o` |
+| `AZURE_OPENAI_EMBEDDING_DEPLOYMENT` | Deployment name for embeddings | `text-embedding-3-small` |
+| `EMBEDDING_DIMENSIONS` | Dimensionality of embedding model | `1536` |
+| `UPLOAD_DIR` | Local directory for document file storage | `uploads` |
+| `MAX_UPLOAD_MB` | Maximum allowed upload size in megabytes | `20` |
+| `CORS_ORIGINS` | JSON list or comma-separated allowed web origins | `["http://localhost:5173","http://localhost:3000"]` |
+
+### Frontend (`frontend/.env`)
+
+| Variable Name | Description | Example / Default |
+|---|---|---|
+| `VITE_API_BASE_URL` | Base URL pointing to the FastAPI backend API | `http://localhost:8000/api/v1` |
+
+---
+
+## Local Run Steps
 
 ### 1. Database Setup (PostgreSQL + pgvector)
 
-Create the PostgreSQL database and enable the `vector` extension:
+Ensure PostgreSQL is running and create the database with the `pgvector` extension:
 
 ```sql
--- Connect to your local PostgreSQL instance:
-CREATE DATABASE docuchat;
-\c docuchat
+CREATE DATABASE docuchat_db;
+\c docuchat_db
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
 ### 2. Backend Setup
 
 ```bash
-# Navigate to backend directory
+# 1. Navigate to backend directory
 cd backend
 
-# Create and activate virtual environment
+# 2. Create and activate virtual environment
 python -m venv .venv
 
-# On Windows (PowerShell):
+# Windows (PowerShell):
 .venv\Scripts\Activate.ps1
-# On macOS / Linux / Git Bash:
+# macOS / Linux / Git Bash:
 source .venv/bin/activate
 
-# Install dependencies
+# 3. Install Python dependencies
 pip install -r requirements.txt
 
-# Configure environment variables
-# Copy .env.example to .env and configure Azure OpenAI credentials and database URL:
+# 4. Create .env from template and configure credentials
 cp .env.example .env
 
-# Run database migrations
-alembic upgrade head
+# 5. Run database migrations
+python -m alembic upgrade head
 
-# Start FastAPI server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# 6. Start FastAPI server
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 3. Frontend Setup
 
-In a new terminal window:
+In a separate terminal:
 
 ```bash
-# Navigate to frontend directory
+# 1. Navigate to frontend directory
 cd frontend
 
-# Install Node dependencies
+# 2. Install Node dependencies
 npm install
 
-# Configure environment variables
-# Copy .env.example to .env:
+# 3. Create .env from template
 cp .env.example .env
 
-# Start Vite development server
+# 4. Start Vite development server
 npm run dev
 ```
 
 ### 4. Application URLs
 
 - **Frontend Web UI**: [http://localhost:5173](http://localhost:5173)
-- **Backend Swagger API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Backend ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **Backend Swagger Interactive Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Backend ReDoc Documentation**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **Backend Health Check**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
 
 ---
 
-## Quick Start Scripts (One Command)
+## Quick Start (One Command)
 
-Convenience scripts are provided in the `scripts/` directory to start both backend and frontend concurrently with graceful termination:
+Convenience dev scripts are available in `scripts/`:
 
-### Windows (PowerShell)
-```powershell
-.\scripts\dev.ps1
-```
-
-### Linux / macOS / Git Bash
-```bash
-chmod +x ./scripts/dev.sh
-./scripts/dev.sh
-```
+- **Windows PowerShell**:
+  ```powershell
+  .\scripts\dev.ps1
+  ```
+- **Linux / macOS**:
+  ```bash
+  chmod +x ./scripts/dev.sh
+  ./scripts/dev.sh
+  ```
 
 ---
 
-## End-to-End Walkthrough Script
+## API Overview
 
-Follow this verification script to test all features end-to-end:
+All API routes follow the standard envelope format `{ "status": "success", "message": "...", "data": ..., "metadata": ... }`:
 
-### Step 1: User Registration & Authentication
-1. Open the frontend at [http://localhost:5173](http://localhost:5173).
-2. Click **Create an account** or navigate to `/register`.
-3. Register with:
-   - **Full Name**: `Jane Doe`
-   - **Email**: `jane@example.com`
-   - **Password**: `SecurePassword123`
-4. Upon submitting, you are automatically logged in, issued a JWT session, and redirected to `/documents`.
+### Authentication (`/api/v1/auth`)
+- `POST /api/v1/auth/register` — Register a new user account
+- `POST /api/v1/auth/login` — Authenticate and receive JWT access & refresh tokens
+- `POST /api/v1/auth/refresh` — Issue a new access token using a refresh token
+- `GET /api/v1/auth/me` — Retrieve current authenticated user profile
 
-### Step 2: Upload a PDF Document
-1. On the **Documents** page (`/documents`), locate the upload drag-and-drop zone.
-2. Drag and drop any PDF file (or click to browse and select a PDF up to 20 MB).
-3. Observe the upload progress indicator.
-4. The document initially appears with status badge **UPLOADED** or **PROCESSING** while the backend extracts page text, chunks the text, and generates pgvector embeddings.
-5. The UI automatically polls every 3 seconds until the status turns to **READY** (with page count and file size displayed).
+### Documents (`/api/v1/documents`)
+- `POST /api/v1/documents` — Upload and trigger asynchronous PDF ingestion
+- `GET /api/v1/documents` — List user documents with pagination and status filters
+- `GET /api/v1/documents/{id}` — Get document metadata, status, and chunk statistics
+- `GET /api/v1/documents/{id}/file` — Download or preview original PDF file
+- `DELETE /api/v1/documents/{id}` — Soft delete a document and associated vector chunks
 
-### Step 3: Start a Grounded Conversation
-1. Click the **Chat** button next to your READY document in the table (or click **New Chat** at the top).
-2. In the modal, enter an optional title (e.g. `PDF Analysis Q1`), verify your document is selected, and click **Start Chat**.
-3. You are redirected to `/chat/<conversation_id>`.
+### Conversations & Chat (`/api/v1/conversations`)
+- `POST /api/v1/conversations` — Create a conversation linked to one or more documents
+- `GET /api/v1/conversations` — List user conversations with pagination
+- `GET /api/v1/conversations/{id}` — Get conversation details
+- `PATCH /api/v1/conversations/{id}` — Rename conversation title
+- `DELETE /api/v1/conversations/{id}` — Delete conversation and messages
+- `GET /api/v1/conversations/{id}/messages` — Get message history
+- `POST /api/v1/conversations/{id}/messages` — Stream chat question response via SSE (`sources`, `token`, `done`, `error`)
 
-### Step 4: Ask a Question & Inspect Citations
-1. In the chat prompt box, type a specific question about your document content (e.g., `"What are the key findings discussed in this document?"`) and press **Enter**.
-2. Watch the assistant response **stream token-by-token in real-time**.
-3. Above or below the response, notice the **Verified Sources** chips (e.g. `[1] Report.pdf p.4`).
-4. Click any source chip to open the **Verified Source Drawer** on the right. Inspect the exact grounded document extract, similarity match percentage, and page number.
-
-### Step 5: Audit & Activity Logging
-1. Click **Activity Logs** in the sidebar (or navigate to `/activity`).
-2. Review the chronological audit trail displaying:
-   - `USER_LOGIN`
-   - `DOCUMENT_UPLOAD`
-   - `DOCUMENT_CHUNK`
-   - `DOCUMENT_EMBED`
-   - `CONVERSATION_CREATE`
-   - `CHAT_MESSAGE`
-3. Test search filtering and pagination controls.
-
-### Step 6: Dark Mode & Error Boundaries
-1. Click the **Sun / Moon toggle** in the top navigation bar.
-2. Confirm all views, modals, chat bubbles, source drawers, and tables transition into high-contrast dark mode.
-3. Refresh the page to verify that the theme preference persists via `localStorage`.
+### Activity Logs (`/api/v1/activity-logs`)
+- `GET /api/v1/activity-logs` — List chronological user audit trail events
 
 ---
 
 ## Testing & Quality Assurance
 
-Run the test suite and verify frontend build integrity:
-
-### Backend Pytest Suite
+### Run Backend Tests
 ```bash
-cd backend
-python -m pytest -q
+python -m pytest backend -q
 ```
-*Expected: 27 passed tests covering auth, document upload, chunking, pgvector search, conversation isolation, and activity logging.*
+*Executes all 38 unit, integration, security, and full end-to-end user lifecycle tests.*
 
-### Frontend Build & Typecheck
+### Run Frontend Lint & Build
 ```bash
 cd frontend
 npm run lint
 npm run build
 ```
-*Expected: TypeScript typecheck passes with 0 errors and production bundle builds successfully.*
 
 ---
 
-## Known Limitations
+## Security Notes
 
-- **OCR for Scanned Images**: Scanned image PDFs without selectable text layers are not currently extracted via OCR (standard text and programmatic PDFs with text streams are supported).
-- **File Format**: Currently restricted to PDF documents (DOCX and Markdown ingestion can be added in future iterations).
-- **Multi-Modal Figures**: Tables and diagram images embedded as bitmap graphics are not processed through multimodal vision models.
-
----
-
-## Suggested Next Steps & Roadmap
-
-1. **OCR Ingestion Pipeline**: Add Tesseract or Azure Document Intelligence OCR fallback for scanned/image-only PDFs.
-2. **Hybrid Search**: Combine pgvector dense cosine search with PostgreSQL `tsvector` full-text BM25 search with Reciprocal Rank Fusion (RRF).
-3. **Multi-File Chat Grounding**: Add multi-document synthesis mode with cross-document comparative summaries.
-4. **Document Export**: Add PDF export or Markdown export for generated conversation transcripts and citations.
+1. **Never Commit Secrets**: `.env` files containing real API keys, connection strings, or JWT secrets must **never** be committed to version control. The repository `.gitignore` is configured to prevent accidental staging.
+2. **Key Rotation**: If any production API key or secret is accidentally exposed, rotate it immediately in the Azure Portal or cloud provider console.
+3. **JWT Secret Strength**: Always generate a high-entropy secret (at least 32 cryptographically random bytes) for `JWT_SECRET` in non-development environments.
+4. **CORS Configuration**: Restrict `CORS_ORIGINS` to trusted domains in production environments.
